@@ -1,0 +1,9 @@
+name = "shorkari-mcp"
+main = "src/index.ts"
+compatibility_date = "2024-11-05"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "shorkari_production"
+database_id = "shorkari-d1-local"
