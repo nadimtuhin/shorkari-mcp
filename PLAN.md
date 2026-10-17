@@ -66,6 +66,7 @@
 | **Banking & Routing Numbers** | `github.com/MdHRShohel/bd-bank-routing` (`data/banks.json`) | CC0 1.0 | 63 banks, 11,426 branches | `routing`, `bank_code`, `bank_name`, `branch_name`, `district` |
 | **Administrative Geocodes & Postcodes** | `github.com/ifahimreza/bangladesh-geojson` (`src/data/`) | MIT | 8 divisions, 64 districts, 494 upazilas, 1,349 postcodes | `id`, `name`, `bn_name`, `lat`, `long`, `post_code`, `district_id` |
 | **National Bazars / Markets** | `ifahimreza/bangladesh-geojson` (`src/data/bd-bazars.geojson`) | MIT | 1,000+ local markets | Coordinates, market names in English and Bangla |
+| **Capital Markets & DSE Equities** | `dsebd.org` / `rochi88/bdshare` / Mendeley DSE Archive | MIT / CC0 | ~400 listed equities, 25 years | Daily OHLCV, DSEX/DS30/DSES indices, P/E ratios, Shariah flag |
 | **Laws of Bangladesh** | `github.com/sakhadib/Bangladesh-Legal-Acts-Dataset` | CC-BY-SA | 1,484 acts (1836–present) | `act_id`, `act_no`, `year`, `title_en`, `title_bn`, `status`, `sections_count` |
 
 ### 2.2 Live Scheduled Scrapers (Moving Targets)
