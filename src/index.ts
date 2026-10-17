@@ -3,6 +3,7 @@ import { queryInflationHistory, queryMacroSnapshot } from './db/queries/macro';
 import { queryBankBranches } from './db/queries/banks';
 import { queryLocation } from './db/queries/geo';
 import { queryStockHistory, queryMarketIndex, queryCompanyFundamentals } from './db/queries/stocks';
+import { queryCommodityPrices } from './db/queries/commodities';
 
 export interface Env {
   DB: any;
@@ -95,6 +96,19 @@ const TOOLS = [
         symbol: { type: 'string', description: 'DSE trade code or company name' }
       },
       required: ['symbol']
+    }
+  },
+  {
+    name: 'get_commodity_price',
+    description: 'Query live and historical wholesale and retail prices of essential food commodities (rice, onion, egg, oil, etc.) across Bangladesh districts.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        commodity: { type: 'string', description: 'Commodity name in English or Bangla (e.g. "onion", "egg", "চাল", "ডিম")' },
+        district: { type: 'string', description: 'District name (e.g. "Dhaka", "Chattogram")' },
+        date: { type: 'string', description: 'Price date YYYY-MM-DD' },
+        limit: { type: 'integer', description: 'Number of results to return (default: 20)' }
+      }
     }
   }
 ];
@@ -244,6 +258,20 @@ export default {
 
           if (toolName === 'get_company_fundamentals') {
             const data = await queryCompanyFundamentals(db, toolArgs);
+            return new Response(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id,
+                result: {
+                  content: [{ type: 'text', text: JSON.stringify(data, null, 2) }]
+                }
+              }),
+              { headers: { 'Content-Type': 'application/json' } }
+            );
+          }
+
+          if (toolName === 'get_commodity_price') {
+            const data = await queryCommodityPrices(db, toolArgs);
             return new Response(
               JSON.stringify({
                 jsonrpc: '2.0',
