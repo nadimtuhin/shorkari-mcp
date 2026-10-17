@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestDatabase } from '../src/db/adapter';
+import { createTestDatabase } from './helpers/test-db';
 import { queryBankBranches, insertBankBranch } from '../src/db/queries/banks';
 
 describe('Bank Routing Query Engine', () => {

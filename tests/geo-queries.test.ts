@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestDatabase } from '../src/db/adapter';
+import { createTestDatabase } from './helpers/test-db';
 import { queryLocation, insertDivision, insertDistrict, insertUpazila, insertPostcode } from '../src/db/queries/geo';
 
 describe('Location Hierarchy Query Engine', () => {

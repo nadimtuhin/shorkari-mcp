@@ -3,7 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2024-11-05"
 compatibility_flags = ["nodejs_compat"]
 
+routes = [
+  { pattern = "shorkari.nadimtuhin.com", custom_domain = true }
+]
+
 [[d1_databases]]
 binding = "DB"
-database_name = "shorkari_production"
-database_id = "shorkari-d1-local"
+database_name = "shorkari-db"
+database_id = "fd96ff21-9389-4aec-904f-2062d3b89c72"

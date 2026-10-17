@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import worker from '../src/index';
-import { createTestDatabase } from '../src/db/adapter';
+import { createTestDatabase } from './helpers/test-db';
 import { insertMacroIndicator } from '../src/db/queries/macro';
 import { insertBankBranch } from '../src/db/queries/banks';
 

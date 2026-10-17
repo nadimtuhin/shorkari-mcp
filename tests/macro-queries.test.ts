@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestDatabase } from '../src/db/adapter';
+import { createTestDatabase } from './helpers/test-db';
 import { queryInflationHistory, queryMacroSnapshot, insertMacroIndicator } from '../src/db/queries/macro';
 
 describe('Macro Indicators Query Engine', () => {

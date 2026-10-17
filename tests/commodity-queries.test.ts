@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { createTestDatabase } from '../src/db/adapter';
+import { createTestDatabase } from './helpers/test-db';
 import { queryCommodityPrices, insertCommodityPrice } from '../src/db/queries/commodities';
 
 describe('Commodity Market Pricing Query Engine', () => {

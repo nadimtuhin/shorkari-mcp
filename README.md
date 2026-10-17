@@ -55,7 +55,7 @@ Add to your `claude_desktop_config.json` or Cursor MCP settings:
   "mcpServers": {
     "shorkari": {
       "type": "streamableHttp",
-      "url": "https://shorkari.nadim.workers.dev/mcp"
+      "url": "https://shorkari.nadimtuhin.com/mcp"
     }
   }
 }
