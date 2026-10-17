@@ -2,6 +2,7 @@ import { wrapD1 } from './db/adapter';
 import { queryInflationHistory, queryMacroSnapshot } from './db/queries/macro';
 import { queryBankBranches } from './db/queries/banks';
 import { queryLocation } from './db/queries/geo';
+import { queryStockHistory, queryMarketIndex, queryCompanyFundamentals } from './db/queries/stocks';
 
 export interface Env {
   DB: any;
@@ -55,6 +56,45 @@ const TOOLS = [
         limit: { type: 'integer', description: 'Maximum results to return (default: 10)' }
       },
       required: ['query']
+    }
+  },
+  {
+    name: 'get_stock_history',
+    description: 'Retrieve historical daily OHLCV stock quotes from Dhaka Stock Exchange (DSE) by ticker or company name.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        symbol: { type: 'string', description: 'DSE trade code or company name (e.g. "GP", "Square Pharma", "BATBC")' },
+        start_date: { type: 'string', description: 'Start date YYYY-MM-DD' },
+        end_date: { type: 'string', description: 'End date YYYY-MM-DD' },
+        limit: { type: 'integer', description: 'Number of daily bars (default: 30)' }
+      },
+      required: ['symbol']
+    }
+  },
+  {
+    name: 'get_market_indices',
+    description: 'Retrieve daily historical benchmark index performance for Dhaka Stock Exchange (DSEX, DS30, DSES Shariah).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        index_name: { type: 'string', description: 'Index name (e.g. "DSEX", "DS30", "DSES")' },
+        start_date: { type: 'string', description: 'Start date YYYY-MM-DD' },
+        end_date: { type: 'string', description: 'End date YYYY-MM-DD' },
+        limit: { type: 'integer', description: 'Number of trading days (default: 30)' }
+      },
+      required: ['index_name']
+    }
+  },
+  {
+    name: 'get_company_fundamentals',
+    description: 'Retrieve sector classification, category, paid-up capital, and Shariah index compliance status for a DSE listed company.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        symbol: { type: 'string', description: 'DSE trade code or company name' }
+      },
+      required: ['symbol']
     }
   }
 ];
@@ -162,6 +202,48 @@ export default {
 
           if (toolName === 'lookup_location') {
             const data = await queryLocation(db, toolArgs);
+            return new Response(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id,
+                result: {
+                  content: [{ type: 'text', text: JSON.stringify(data, null, 2) }]
+                }
+              }),
+              { headers: { 'Content-Type': 'application/json' } }
+            );
+          }
+
+          if (toolName === 'get_stock_history') {
+            const data = await queryStockHistory(db, toolArgs);
+            return new Response(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id,
+                result: {
+                  content: [{ type: 'text', text: JSON.stringify(data, null, 2) }]
+                }
+              }),
+              { headers: { 'Content-Type': 'application/json' } }
+            );
+          }
+
+          if (toolName === 'get_market_indices') {
+            const data = await queryMarketIndex(db, toolArgs);
+            return new Response(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id,
+                result: {
+                  content: [{ type: 'text', text: JSON.stringify(data, null, 2) }]
+                }
+              }),
+              { headers: { 'Content-Type': 'application/json' } }
+            );
+          }
+
+          if (toolName === 'get_company_fundamentals') {
+            const data = await queryCompanyFundamentals(db, toolArgs);
             return new Response(
               JSON.stringify({
                 jsonrpc: '2.0',
