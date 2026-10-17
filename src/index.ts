@@ -1,6 +1,7 @@
 import { wrapD1 } from './db/adapter';
 import { queryInflationHistory, queryMacroSnapshot } from './db/queries/macro';
 import { queryBankBranches } from './db/queries/banks';
+import { queryLocation } from './db/queries/geo';
 
 export interface Env {
   DB: any;
@@ -40,6 +41,18 @@ const TOOLS = [
         query: { type: 'string', description: '9-digit routing number or branch/bank search string' },
         district: { type: 'string', description: 'Optional district filter' },
         payable_only: { type: 'boolean', description: 'Only return branches that accept credit transfers (default: true)' }
+      },
+      required: ['query']
+    }
+  },
+  {
+    name: 'lookup_location',
+    description: 'Resolve Bangladesh administrative hierarchy (Division, District, Upazila, Postal Code) by name or 4-digit post code in English or Bangla.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Post code or location name in English or Bangla (e.g. "1209", "Dhanmondi", "সিলেট")' },
+        limit: { type: 'integer', description: 'Maximum results to return (default: 10)' }
       },
       required: ['query']
     }
@@ -135,6 +148,20 @@ export default {
 
           if (toolName === 'lookup_bank_routing') {
             const data = await queryBankBranches(db, toolArgs);
+            return new Response(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id,
+                result: {
+                  content: [{ type: 'text', text: JSON.stringify(data, null, 2) }]
+                }
+              }),
+              { headers: { 'Content-Type': 'application/json' } }
+            );
+          }
+
+          if (toolName === 'lookup_location') {
+            const data = await queryLocation(db, toolArgs);
             return new Response(
               JSON.stringify({
                 jsonrpc: '2.0',
