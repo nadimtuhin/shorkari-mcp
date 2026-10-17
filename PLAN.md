@@ -235,35 +235,74 @@ The MCP server exposes high-signal tools designed for AI agents (Claude, Cursor,
 
 ---
 
-## 5. Phased Implementation Roadmap
+## 5. Bite-Sized Implementation Tasks
 
-### Phase 1: Repo Setup & Data Harvesting (Zero-Crawler Seed)
-*   Initialize TypeScript Cloudflare Worker project using `@modelcontextprotocol/sdk` and `wrangler`.
-*   Write `scripts/seed-data.ts`:
-    *   Pulls World Bank CPI & Macro API data (1960–present).
-    *   Pulls `MdHRShohel/bd-bank-routing` dataset.
-    *   Pulls `ifahimreza/bangladesh-geojson` administrative hierarchy.
-    *   Pulls `sakhadib/Bangladesh-Legal-Acts-Dataset` act index.
-    *   Generates `seed.sql` for Cloudflare D1.
-*   Initialize local Cloudflare D1 database and verify all queries run under 5ms.
+### Task 1: Initialize Project Scaffolding
+- **Objective:** Create `package.json`, `tsconfig.json`, `wrangler.toml`, and install dependencies (`@modelcontextprotocol/sdk`, `zod`, `vitest`).
+- **Files:** `package.json`, `tsconfig.json`, `wrangler.toml`
+- **Verification:** `bun test` passes with 0 failures.
+- **Commit:** `chore: initialize Cloudflare Worker project with MCP SDK and Vitest`
 
-### Phase 2: Core MCP Worker Implementation
-*   Implement MCP server handlers in `src/index.ts`:
-    *   Tool registry and parameter validation with `zod`.
-    *   SQL query executors against Cloudflare D1.
-    *   SSE (Streamable-HTTP) transport for remote MCP clients at `/mcp`.
-    *   Standard JSON REST endpoints at `/v1/indicators`, `/v1/banks`, etc.
-*   Run automated integration test suite with Vitest.
+### Task 2: Implement Bengali Numeral & Range Normalizer (`src/utils/bangla.ts`)
+- **Objective:** Pure function utilities to convert Bengali numbers, comma-separated currency values, and price ranges.
+- **Files:**
+  - Create: `src/utils/bangla.ts`
+  - Test: `tests/bangla.test.ts`
+- **Step 1 (Test):** Test `toAsciiDigits("১২৩৪.৫০")` -> `"1234.50"`, `parseBnFloat("১,২৫০.৫০")` -> `1250.50`, `parseBnRange("৭২.০০ - ৭৫.০০")` -> `{ min: 72, max: 75 }`.
+- **Step 2 (Implementation):** Implement string translation mappings.
+- **Step 3 (Verify):** `bun test tests/bangla.test.ts` -> PASS.
+- **Commit:** `feat: add Bengali numeral and price range normalization utilities`
 
-### Phase 3: Daily Scraper for Commodity Prices
-*   Build `scrapers/dam_commodity.ts`:
-    *   Fetches `market.dam.gov.bd`.
-    *   Extracts commodity price tables and normalizes Bangla number strings (`০-৯` -> `0-9`).
-    *   Appends to `commodity_prices` in Cloudflare D1 via Cloudflare API.
-*   Configure GitHub Actions workflow `.github/workflows/daily-scraper.yml` on cron `30 2 * * *` (08:30 AM BST).
+### Task 3: Ingestion & Seed Builder Script (`scripts/seed.ts`)
+- **Objective:** Script that pulls World Bank inflation, MdHRShohel bank routing, and ifahimreza geojson, transforming them into `migrations/0001_initial_schema.sql` and `migrations/0002_seed_data.sql`.
+- **Files:**
+  - Create: `scripts/seed.ts`
+  - Create: `migrations/0001_initial_schema.sql`
+  - Test: `tests/seed.test.ts`
+- **Step 1 (Test):** Verify transformer turns World Bank payload into valid SQLite insert statements.
+- **Step 2 (Implementation):** Fetch raw JSONs, normalize, output parameterized SQL statements.
+- **Step 3 (Verify):** `bun run scripts/seed.ts --dry-run` outputs verified row counts (66 inflation rows, 11,426 branch rows, 494 upazila rows).
+- **Commit:** `feat: implement seed script and SQL migrations`
 
-### Phase 4: Stdio CLI & Community Release
-*   Create `bin/cli.ts` (packaged as `shorkari-mcp` on npm):
-    *   Lightweight stdio-to-HTTP tunnel so users can run `npx shorkari-mcp` in Claude Desktop or Cursor without setting up environment variables.
-*   Write README, documentation, and Claude Desktop / Cursor configuration snippets.
-*   Release under MIT license.
+### Task 4: D1 Database Query Layer (`src/db/queries.ts`)
+- **Objective:** Type-safe SQL query functions targeting D1 SQLite for inflation, bank routing, geocodes, and commodities.
+- **Files:**
+  - Create: `src/db/queries.ts`
+  - Test: `tests/queries.test.ts` (using in-memory SQLite / `better-sqlite3`)
+- **Step 1 (Test):** Test `queryInflation(db, 2015, 2024)` returns ordered array; test `queryBankBranches(db, "Agrani", "Dhaka")` returns matches.
+- **Step 2 (Implementation):** Implement indexed SQL select queries.
+- **Step 3 (Verify):** `bun test tests/queries.test.ts` -> PASS.
+- **Commit:** `feat: add typed D1 database query handlers`
+
+### Task 5: MCP Tool Handlers & SSE Edge Server (`src/index.ts`)
+- **Objective:** Expose MCP tools (`get_inflation_history`, `lookup_bank_routing`, `lookup_location`, `get_macro_snapshot`) over Streamable-HTTP (`/mcp`) on Cloudflare Workers.
+- **Files:**
+  - Create: `src/index.ts`
+  - Test: `tests/mcp-server.test.ts`
+- **Step 1 (Test):** Spin up mock fetch against worker, send MCP JSON-RPC `tools/list` and `tools/call`, assert protocol schema response.
+- **Step 2 (Implementation):** Connect `@modelcontextprotocol/sdk` Server to Workers `fetch` handler.
+- **Step 3 (Verify):** `bun test tests/mcp-server.test.ts` -> PASS.
+- **Commit:** `feat: implement Cloudflare Worker MCP server with Streamable HTTP`
+
+### Task 6: Daily Commodity Scraper (`scrapers/dam_commodity.ts`)
+- **Objective:** Robust scraper for `market.dam.gov.bd` with fixture testing and automated number parsing.
+- **Files:**
+  - Create: `scrapers/dam_commodity.ts`
+  - Test: `tests/dam_scraper.test.ts` (with saved HTML fixture)
+- **Step 1 (Test):** Feed real DAM HTML snippet, verify extraction of rice, egg, and onion prices with min/max ranges.
+- **Step 2 (Implementation):** Use regex/HTML parser + `parseBnRange` from `bangla.ts`.
+- **Step 3 (Verify):** `bun test tests/dam_scraper.test.ts` -> PASS.
+- **Commit:** `feat: add Department of Agricultural Marketing commodity scraper`
+
+### Task 7: GitHub Actions Daily Crawler Workflow
+- **Objective:** Automated daily ingestion pipeline committing to SQLite / pushing D1 updates.
+- **Files:**
+  - Create: `.github/workflows/daily-sync.yml`
+- **Commit:** `ci: add scheduled GitHub Action for daily commodity sync`
+
+### Task 8: Stdio CLI Wrapper (`bin/cli.ts` / `npx shorkari-mcp`)
+- **Objective:** Lightweight bridge connecting local AI clients (stdio) to the remote edge server or bundled SQLite database.
+- **Files:**
+  - Create: `bin/cli.ts`
+- **Verify:** `echo '{"jsonrpc":"2.0","method":"tools/list","id":1}' | bun run bin/cli.ts` returns tools list.
+- **Commit:** `feat: add stdio CLI wrapper for npx execution`
