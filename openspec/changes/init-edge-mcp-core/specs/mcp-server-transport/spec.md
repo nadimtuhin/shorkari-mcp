@@ -8,7 +8,7 @@ The MCP server SHALL respond to `initialize` JSON-RPC requests with server metad
 #### Scenario: Assistant client initializes session
 - **WHEN** client sends a POST request to `/mcp` with method `initialize`
 - **THEN** server returns status 200 with `protocolVersion: "2024-11-05"`
-- **AND** response includes `serverInfo: { name: "shorkari-mcp", version: "0.1.0" }`
+- **AND** response includes `serverInfo: { name: "bdmcp", version: "0.1.0" }`
 
 ### Requirement: Enumerate available tools
 The MCP server SHALL return the list of registered tools with valid JSON-schema input definitions upon receiving `tools/list`.

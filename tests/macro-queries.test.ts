@@ -19,6 +19,14 @@ describe('Macro Indicators Query Engine', () => {
       id: 'RES:BPM6:2026-09', series_id: 'RESERVES_BPM6_USD', frequency: 'MONTHLY',
       period_year: 2026, period_month: 9, value: 31198.9, unit: 'USD_MN', source_agency: 'Bangladesh Bank'
     });
+    await insertMacroIndicator(db, {
+      id: 'CPI:M:2024-07', series_id: 'INFLATION_CPI_MONTHLY', frequency: 'MONTHLY',
+      period_year: 2024, period_month: 7, value: 11.66, unit: '%', source_agency: 'BBS', base_year: '2021-22'
+    });
+    await insertMacroIndicator(db, {
+      id: 'CPI:M:2024-06', series_id: 'INFLATION_CPI_MONTHLY', frequency: 'MONTHLY',
+      period_year: 2024, period_month: 6, value: 9.72, unit: '%', source_agency: 'BBS', base_year: '2021-22'
+    });
   });
 
   it('filters inflation history by year range in descending order', async () => {
@@ -26,6 +34,15 @@ describe('Macro Indicators Query Engine', () => {
     expect(results.length).toBe(2);
     expect(results[0].period_year).toBe(2024);
     expect(results[0].base_year).toBe('2021-22');
+  });
+
+  it('queries month-by-month inflation when frequency is MONTHLY', async () => {
+    const monthly = await queryInflationHistory(db, { start_year: 2024, end_year: 2024, frequency: 'MONTHLY' });
+    expect(monthly.length).toBe(2);
+    expect(monthly[0].period_month).toBe(7);
+    expect(monthly[0].inflation_rate).toBe(11.66);
+    expect(monthly[1].period_month).toBe(6);
+    expect(monthly[1].inflation_rate).toBe(9.72);
   });
 
   it('retrieves latest macro snapshot across indicators', async () => {

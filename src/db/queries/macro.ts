@@ -21,15 +21,21 @@ export async function insertMacroIndicator(db: DatabaseExecutor, rec: MacroRecor
   );
 }
 
-export async function queryInflationHistory(db: DatabaseExecutor, opts: { start_year?: number; end_year?: number } = {}) {
+export async function queryInflationHistory(
+  db: DatabaseExecutor,
+  opts: { start_year?: number; end_year?: number; frequency?: 'ANNUAL' | 'MONTHLY' } = {}
+) {
   const start = opts.start_year ?? 1960;
   const end = opts.end_year ?? new Date().getFullYear();
-  return db.all<MacroRecord>(
+  const freq = opts.frequency === 'MONTHLY' ? 'MONTHLY' : 'ANNUAL';
+  const seriesId = freq === 'MONTHLY' ? 'INFLATION_CPI_MONTHLY' : 'INFLATION_CPI_ANNUAL';
+
+  return db.all<any>(
     `SELECT period_year, period_month, value as inflation_rate, unit, source_agency, base_year 
      FROM macro_indicators 
-     WHERE series_id = 'INFLATION_CPI_ANNUAL' AND period_year BETWEEN ? AND ? 
-     ORDER BY period_year DESC`,
-    [start, end]
+     WHERE series_id = ? AND period_year BETWEEN ? AND ? 
+     ORDER BY period_year DESC, period_month DESC`,
+    [seriesId, start, end]
   );
 }
 

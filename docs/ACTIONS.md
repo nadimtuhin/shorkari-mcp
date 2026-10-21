@@ -1,4 +1,4 @@
-# Shorkari MCP — Agent Workable Actions (Red-Green TDD Playbook)
+# BDMCP MCP — Agent Workable Actions (Red-Green TDD Playbook)
 
 > **Execution Directive for AI Agents:**
 > Follow each action in strict order.
@@ -40,13 +40,13 @@ bun test tests/sanity.test.ts
 1. Write `package.json`:
 ```json
 {
-  "name": "shorkari-mcp",
+  "name": "bdmcp",
   "version": "0.1.0",
   "description": "Unofficial Model Context Protocol server for Bangladesh public data",
   "main": "src/index.ts",
   "type": "module",
   "bin": {
-    "shorkari-mcp": "./bin/cli.ts"
+    "bdmcp": "./bin/cli.ts"
   },
   "scripts": {
     "test": "vitest run",
@@ -84,14 +84,14 @@ bun test tests/sanity.test.ts
 ```
 3. Write `wrangler.toml`:
 ```toml
-name = "shorkari-mcp"
+name = "bdmcp"
 main = "src/index.ts"
 compatibility_date = "2024-11-05"
 compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "shorkari_production"
+database_name = "bdmcp_production"
 database_id = "shorkari-d1-local"
 ```
 4. Install dependencies:
@@ -590,7 +590,7 @@ describe('MCP Worker Protocol E2E', () => {
     const res = await worker.fetch(req, {} as any, {} as any);
     expect(res.status).toBe(200);
     const json = await res.json();
-    expect(json.result.serverInfo.name).toBe('shorkari-mcp');
+    expect(json.result.serverInfo.name).toBe('bdmcp');
   });
 
   it('lists registered tools upon tools/list', async () => {

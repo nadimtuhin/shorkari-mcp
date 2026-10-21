@@ -99,25 +99,9 @@ async function run() {
     return;
   }
 
-  const sqlStatements: string[] = [];
+  const sqlStatements: string[] = ['PRAGMA foreign_keys = OFF;'];
 
-  // Macro indicators
-  for (const m of [...inflation, ...gdp]) {
-    sqlStatements.push(
-      `INSERT OR REPLACE INTO macro_indicators (id, series_id, frequency, period_year, period_month, value, unit, source_agency, base_year) ` +
-      `VALUES ('${m.id}', '${m.series_id}', '${m.frequency}', ${m.period_year}, NULL, ${m.value}, '${m.unit}', '${m.source_agency}', '${m.base_year}');`
-    );
-  }
-
-  // Bank branches (batch in chunks of 500)
-  for (const b of branches) {
-    sqlStatements.push(
-      `INSERT OR REPLACE INTO bank_branches (routing_number, bank_code, bank_name, branch_name, district, payable, swift_code, updated_at) ` +
-      `VALUES ('${b.routing_number}', '${b.bank_code}', '${b.bank_name}', '${b.branch_name}', '${b.district}', ${b.payable}, NULL, '${b.updated_at}');`
-    );
-  }
-
-  // Divisions
+  // 1. Divisions first
   for (const d of geo.divisions) {
     sqlStatements.push(
       `INSERT OR REPLACE INTO divisions (id, name, bn_name, lat, long) ` +
@@ -125,7 +109,7 @@ async function run() {
     );
   }
 
-  // Districts
+  // 2. Districts second
   for (const d of geo.districts) {
     sqlStatements.push(
       `INSERT OR REPLACE INTO districts (id, division_id, name, bn_name, lat, long) ` +
@@ -133,7 +117,7 @@ async function run() {
     );
   }
 
-  // Upazilas
+  // 3. Upazilas third
   for (const u of geo.upazilas) {
     sqlStatements.push(
       `INSERT OR REPLACE INTO upazilas (id, district_id, name, bn_name) ` +
@@ -141,13 +125,31 @@ async function run() {
     );
   }
 
-  // Postcodes
+  // 4. Postcodes fourth
   for (const p of geo.postcodes) {
     sqlStatements.push(
       `INSERT INTO postcodes (division_id, district_id, upazila, post_office, post_code) ` +
       `VALUES ('${p.division_id}', '${p.district_id}', '${(p.upazila || '').replace(/'/g, "''")}', '${(p.postOffice || '').replace(/'/g, "''")}', '${p.postCode || ''}');`
     );
   }
+
+  // 5. Macro indicators
+  for (const m of [...inflation, ...gdp]) {
+    sqlStatements.push(
+      `INSERT OR REPLACE INTO macro_indicators (id, series_id, frequency, period_year, period_month, value, unit, source_agency, base_year) ` +
+      `VALUES ('${m.id}', '${m.series_id}', '${m.frequency}', ${m.period_year}, NULL, ${m.value}, '${m.unit}', '${m.source_agency}', '${m.base_year}');`
+    );
+  }
+
+  // 6. Bank branches
+  for (const b of branches) {
+    sqlStatements.push(
+      `INSERT OR REPLACE INTO bank_branches (routing_number, bank_code, bank_name, branch_name, district, payable, swift_code, updated_at) ` +
+      `VALUES ('${b.routing_number}', '${b.bank_code}', '${b.bank_name}', '${b.branch_name}', '${b.district}', ${b.payable}, NULL, '${b.updated_at}');`
+    );
+  }
+
+  sqlStatements.push('PRAGMA foreign_keys = ON;');
 
   const outPath = resolve(process.cwd(), 'migrations/0002_seed_data.sql');
   writeFileSync(outPath, sqlStatements.join('\n'), 'utf8');

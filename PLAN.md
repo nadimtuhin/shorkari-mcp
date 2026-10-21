@@ -1,10 +1,10 @@
-# Shorkari MCP (সরকারি MCP) — Implementation & Architecture Plan
+# BDMCP MCP (সরকারি MCP) — Implementation & Architecture Plan
 
 > **Goal:** Build the open-source, edge-hosted Model Context Protocol (MCP) server for Bangladesh public data — macroeconomic indicators, historical inflation, daily commodity prices, banking/routing infrastructure, administrative geocodes, and national legislation.
 >
 > **Inspiration:** `gahmen-mcp` (Singapore GovTech MCP by Aniruddha Adhikary).
 >
-> **Runtime Target:** Cloudflare Workers (Streamable-HTTP `/mcp` + REST `/v1`) + Node/Bun stdio CLI (`npx shorkari-mcp`). Storage backed by Cloudflare D1 (Serverless SQLite) and Cloudflare R2.
+> **Runtime Target:** Cloudflare Workers (Streamable-HTTP `/mcp` + REST `/v1`) + Node/Bun stdio CLI (`npx bdmcp`). Storage backed by Cloudflare D1 (Serverless SQLite) and Cloudflare R2.
 
 ---
 
@@ -44,11 +44,11 @@
                                 │
                                 ▼
        ┌──────────────────────────────────────────────────┐
-       │             `shorkari-mcp` Server                │
+       │             `bdmcp` Server                │
        │  Cloudflare Worker running TypeScript MCP SDK    │
        ├─────────────────────────┬────────────────────────┤
        │  Remote Streamable-HTTP │    Local stdio Proxy   │
-       │   SSE (/mcp) for Claude │   `npx shorkari-mcp`   │
+       │   SSE (/mcp) for Claude │   `npx bdmcp`   │
        │   Cursor, ChatGPT, etc. │   for Terminal Agents  │
        └─────────────────────────┴────────────────────────┘
 ```
@@ -187,7 +187,7 @@ CREATE INDEX idx_legal_acts_title ON legal_acts(title_en);
 
 ---
 
-## 4. MCP Server Specification (`shorkari-mcp`)
+## 4. MCP Server Specification (`bdmcp`)
 
 The MCP server exposes high-signal tools designed for AI agents (Claude, Cursor, ChatGPT, Codex, Pi, Hermes) needing verified Bangladeshi ground truth.
 
@@ -301,7 +301,7 @@ The MCP server exposes high-signal tools designed for AI agents (Claude, Cursor,
   - Create: `.github/workflows/daily-sync.yml`
 - **Commit:** `ci: add scheduled GitHub Action for daily commodity sync`
 
-### Task 8: Stdio CLI Wrapper (`bin/cli.ts` / `npx shorkari-mcp`)
+### Task 8: Stdio CLI Wrapper (`bin/cli.ts` / `npx bdmcp`)
 - **Objective:** Lightweight bridge connecting local AI clients (stdio) to the remote edge server or bundled SQLite database.
 - **Files:**
   - Create: `bin/cli.ts`

@@ -1,4 +1,4 @@
-# Shorkari MCP — Technical Specification & Edge Primitives
+# BDMCP MCP — Technical Specification & Edge Primitives
 
 ## 1. Bengali Data Normalization Engine (`src/utils/bangla.ts`)
 
@@ -148,15 +148,15 @@ export const ToolSchemas = {
 1. **Cloudflare Worker:**
    - Deployed globally via `wrangler deploy`.
    - Free plan: Handles up to 100,000 requests/day with zero compute cost.
-   - Streamable HTTP endpoint: `https://shorkari.workers.dev/mcp`.
-2. **Local NPM CLI Wrapper (`shorkari-mcp`):**
+   - Streamable HTTP endpoint: `https://bdmcp.nadimtuhin.com/mcp`.
+2. **Local NPM CLI Wrapper (`bdmcp`):**
    - For Claude Desktop or local CLI agents that require stdio:
      ```json
      {
        "mcpServers": {
-         "shorkari": {
+         "bdmcp": {
            "command": "npx",
-           "args": ["-y", "shorkari-mcp"]
+           "args": ["-y", "bdmcp"]
          }
        }
      }

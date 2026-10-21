@@ -1,4 +1,4 @@
-# shorkari-mcp (সরকারি MCP)
+# bdmcp (সরকারি MCP)
 
 > **The Open Public Intelligence & Data Connector for Bangladesh.**
 > Unofficial Model Context Protocol (MCP) server connecting AI assistants (Claude, Cursor, ChatGPT, Codex, Pi, Hermes) to verified Bangladesh government data, macroeconomic time series, daily commodity prices, banking infrastructure, and national legislation.
@@ -7,18 +7,18 @@ Inspired by Singapore's [`gahmen-mcp`](https://github.com/aniruddha-adhikary/gah
 
 ---
 
-## 🇧🇩 Why `shorkari-mcp`?
+## 🇧🇩 Why `bdmcp`?
 
 In Bangladesh, public data is fractured across outdated portals, scanned PDFs in legacy ANSI fonts (SutonnyMJ), and servers protected by aggressive WAFs. 
 
-`shorkari-mcp` unifies these sources into a single, high-performance edge database running on Cloudflare Workers and D1 SQLite. It provides sub-5ms verified ground truth for AI assistants without runtime scraping failures.
+`bdmcp` unifies these sources into a single, high-performance edge database running on Cloudflare Workers and D1 SQLite. It provides sub-5ms verified ground truth for AI assistants without runtime scraping failures.
 
 ```
 AI Assistant (Claude / Cursor / ChatGPT)
                   │
                   ▼ (JSON-RPC over Streamable-HTTP or stdio)
        ┌────────────────────────┐
-       │   `shorkari-mcp`       │
+       │   `bdmcp`              │
        │   Cloudflare Edge      │
        └──────────┬─────────────┘
                   │
@@ -53,9 +53,9 @@ Add to your `claude_desktop_config.json` or Cursor MCP settings:
 ```json
 {
   "mcpServers": {
-    "shorkari": {
+    "bdmcp": {
       "type": "streamableHttp",
-      "url": "https://shorkari.nadimtuhin.com/mcp"
+      "url": "https://bdmcp.nadimtuhin.com/mcp"
     }
   }
 }
@@ -66,7 +66,7 @@ Add to your `claude_desktop_config.json` or Cursor MCP settings:
 Run directly via `npx` (no installation or API keys required):
 
 ```bash
-npx -y shorkari-mcp
+npx -y bdmcp
 ```
 
 Or configure in your local agent settings:
@@ -74,9 +74,9 @@ Or configure in your local agent settings:
 ```json
 {
   "mcpServers": {
-    "shorkari": {
+    "bdmcp": {
       "command": "npx",
-      "args": ["-y", "shorkari-mcp"]
+      "args": ["-y", "bdmcp"]
     }
   }
 }

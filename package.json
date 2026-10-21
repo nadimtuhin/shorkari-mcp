@@ -1,11 +1,11 @@
 {
-  "name": "shorkari-mcp",
+  "name": "bdmcp",
   "version": "0.1.0",
   "description": "Unofficial Model Context Protocol server for Bangladesh public data",
   "main": "src/index.ts",
   "type": "module",
   "bin": {
-    "shorkari-mcp": "./bin/cli.ts"
+    "bdmcp": "./bin/cli.ts"
   },
   "scripts": {
     "test": "bun test",
