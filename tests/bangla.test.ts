@@ -20,3 +20,14 @@ describe('Bengali Numeral Normalizer', () => {
     expect(parseBnRange('')).toBe(null);
   });
 });
+
+describe('normalizeBnText', () => {
+  it('folds decomposed nukta sequences into the precomposed letters used in the data', async () => {
+    const { normalizeBnText } = await import('../src/utils/bangla');
+    expect(normalizeBnText('\u09AF\u09BC')).toBe('\u09DF');
+    expect(normalizeBnText('\u09A1\u09BC')).toBe('\u09DC');
+    expect(normalizeBnText('\u09A2\u09BC')).toBe('\u09DD');
+    const precomposed = '\u09AE\u09DF\u09AE\u09A8\u09B8\u09BF\u0982\u09B9';
+    expect(normalizeBnText('  ' + precomposed.normalize('NFD') + '  ')).toBe(precomposed);
+  });
+});

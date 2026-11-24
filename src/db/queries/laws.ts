@@ -1,4 +1,5 @@
 import type { DatabaseExecutor } from '../adapter';
+import { normalizeBnText } from '../../utils/bangla';
 
 export interface LegalActRecord {
   id: string;
@@ -24,7 +25,7 @@ export async function queryLegalActs(
   db: DatabaseExecutor,
   opts: { query: string; year?: number; active_only?: boolean; limit?: number }
 ) {
-  const q = opts.query.trim();
+  const q = normalizeBnText(opts.query);
   const limit = Math.min(opts.limit ?? 10, 50);
   const whereClauses: string[] = ['(title_en LIKE ? OR title_bn LIKE ?)'];
   const params: any[] = [`%${q}%`, `%${q}%`];

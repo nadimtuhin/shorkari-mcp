@@ -30,3 +30,21 @@ export function parseBnRange(input: string): { min: number; max: number } | null
   if (min === null || max === null) return null;
   return { min: Math.min(min, max), max: Math.max(min, max) };
 }
+
+// ড় ঢ় য় can be encoded either as one code point (U+09DC/U+09DD/U+09DF) or as
+// base letter + nukta (U+09BC). Unicode NFC prefers the decomposed form, but
+// the seeded data uses the precomposed one, so fold user input to match it.
+const BN_NUKTA_FOLD: Array<[RegExp, string]> = [
+  [/ড়/g, 'ড়'],
+  [/ঢ়/g, 'ঢ়'],
+  [/য়/g, 'য়']
+];
+
+export function normalizeBnText(input: string): string {
+  if (!input) return '';
+  let out = input.trim();
+  for (const [pattern, replacement] of BN_NUKTA_FOLD) {
+    out = out.replace(pattern, replacement);
+  }
+  return out;
+}

@@ -934,8 +934,22 @@ export default {
         });
       }
 
-      const { id, method, params } = body;
+      const { id, method, params } = body ?? {};
+
+      // JSON-RPC notifications (and responses) carry no id and must not get a
+      // JSON-RPC reply. The Streamable HTTP transport expects 202 Accepted with
+      // an empty body; anything else makes SDK clients fail during connect().
+      if (body && typeof body === 'object' && !Array.isArray(body) && id === undefined) {
+        return new Response(null, { status: 202 });
+      }
+
       const db = env.DB?.all ? env.DB : wrapD1(env.DB);
+
+      if (method === 'ping') {
+        return new Response(JSON.stringify({ jsonrpc: '2.0', id, result: {} }), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
 
       if (method === 'initialize') {
         return new Response(
@@ -1205,13 +1219,18 @@ export default {
             { status: 404, headers: { 'Content-Type': 'application/json' } }
           );
         } catch (err: any) {
+          // Per the MCP spec, failures while running a tool are reported inside
+          // the result with isError so the model can see and react to them.
           return new Response(
             JSON.stringify({
               jsonrpc: '2.0',
               id,
-              error: { code: -32603, message: err.message || 'Internal error' }
+              result: {
+                content: [{ type: 'text', text: `Error running ${toolName}: ${err?.message || 'Internal error'}` }],
+                isError: true
+              }
             }),
-            { status: 500, headers: { 'Content-Type': 'application/json' } }
+            { headers: { 'Content-Type': 'application/json' } }
           );
         }
       }
@@ -1220,6 +1239,12 @@ export default {
         JSON.stringify({ jsonrpc: '2.0', id, error: { code: -32601, message: `Method not found: ${method}` } }),
         { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
+    }
+
+    if (url.pathname === '/mcp') {
+      // This server only answers POSTed JSON-RPC; it offers no server-initiated
+      // SSE stream, which the Streamable HTTP spec signals with 405.
+      return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'POST' } });
     }
 
     return new Response('Not Found', { status: 404 });

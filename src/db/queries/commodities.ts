@@ -1,4 +1,5 @@
 import type { DatabaseExecutor } from '../adapter';
+import { normalizeBnText } from '../../utils/bangla';
 
 export interface CommodityPriceRecord {
   id?: number;
@@ -45,14 +46,14 @@ export async function queryCommodityPrices(
   const params: any[] = [];
 
   if (opts.commodity) {
-    const q = opts.commodity.trim();
+    const q = normalizeBnText(opts.commodity);
     whereClauses.push('(commodity_en LIKE ? OR commodity_bn LIKE ?)');
     params.push(`%${q}%`, `%${q}%`);
   }
 
   if (opts.district) {
     whereClauses.push('district LIKE ?');
-    params.push(`%${opts.district.trim()}%`);
+    params.push(`%${normalizeBnText(opts.district)}%`);
   }
 
   if (opts.date) {
