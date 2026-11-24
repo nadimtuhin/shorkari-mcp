@@ -31,7 +31,7 @@ describe('MCP Streamable HTTP compliance', () => {
     const env = { DB: createTestDatabase() };
     const res = await rpc({ jsonrpc: '2.0', id: 3, method: 'ping' }, env);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ jsonrpc: '2.0', id: 3, result: {} });
+    expect((await res.json()) as any).toEqual({ jsonrpc: '2.0', id: 3, result: {} });
   });
 
   it('answers GET /mcp with 405 since no server-initiated SSE stream is offered', async () => {
