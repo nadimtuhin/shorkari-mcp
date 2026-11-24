@@ -58,3 +58,18 @@ describe('Laws of Bangladesh Query Engine', () => {
     expect(all.length).toBe(2);
   });
 });
+
+describe('Laws search with decomposed Bangla nukta letters', () => {
+  it('finds an act whose stored Bangla title uses precomposed য়', async () => {
+    const db = createTestDatabase();
+    // "আয়কর আইন, ২০২৩" (Income Tax Act 2023) with য় stored as U+09DF
+    const titleBn = 'আয়কর আইন, ২০২৩';
+    await insertLegalAct(db, {
+      id: 'act-2023-12', act_no: '12', year: 2023, title_en: 'The Income Tax Act, 2023',
+      title_bn: titleBn, is_repealed: 0, sections_count: 350, source_url: 'http://bdlaws.minlaw.gov.bd/act-1430.html'
+    });
+    const res = await queryLegalActs(db, { query: 'আয়কর'.normalize('NFC') });
+    expect(res.length).toBe(1);
+    expect(res[0].title_bn).toBe(titleBn);
+  });
+});

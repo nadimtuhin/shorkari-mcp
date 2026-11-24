@@ -1,4 +1,5 @@
 import type { DatabaseExecutor } from '../adapter';
+import { normalizeBnText, toAsciiDigits } from '../../utils/bangla';
 
 export interface DivisionRecord {
   id: string;
@@ -70,7 +71,7 @@ const HISTORIC_ALIASES: Record<string, string> = {
 };
 
 export async function queryLocation(db: DatabaseExecutor, opts: { query: string; limit?: number }) {
-  let q = opts.query.trim().toLowerCase();
+  let q = normalizeBnText(opts.query).toLowerCase();
   const limit = Math.min(opts.limit ?? 10, 50);
 
   if (HISTORIC_ALIASES[q]) {
@@ -78,7 +79,8 @@ export async function queryLocation(db: DatabaseExecutor, opts: { query: string;
   }
 
   // Exact 4-digit postal code match
-  if (/^\d{4}$/.test(q)) {
+  if (/^[\d০-৯]{4}$/.test(q)) {
+    q = toAsciiDigits(q);
     const postcodes = await db.all<any>(
       `SELECT p.post_code, p.post_office, p.upazila, d.name as district_name, d.bn_name as district_bn, div.name as division_name 
        FROM postcodes p 
