@@ -46,41 +46,48 @@ Inflation      Commodities    Routing        Bangladesh
 
 ## 🚀 Quick Start
 
-### 1. Claude Desktop / Cursor (Remote Streamable-HTTP)
+### 1. Remote server (Streamable HTTP)
 
-Add to your `claude_desktop_config.json` or Cursor MCP settings:
+The hosted endpoint is `https://bdmcp.nadimtuhin.com/mcp`.
+
+Claude Code:
+
+```bash
+claude mcp add --transport http bdmcp https://bdmcp.nadimtuhin.com/mcp
+```
+
+Cursor (`~/.cursor/mcp.json`) and other clients that accept a URL:
 
 ```json
 {
   "mcpServers": {
     "bdmcp": {
-      "type": "streamableHttp",
       "url": "https://bdmcp.nadimtuhin.com/mcp"
     }
   }
 }
 ```
 
-### 2. Terminal & Local CLI Agents (stdio)
+### 2. Local stdio bridge (Claude Desktop and other stdio-only clients)
 
-Run directly via `npx` (no installation or API keys required):
+`bdmcp` is not published to npm yet, so `npx bdmcp` will not work. Clone the repository and point your client at the bundled stdio wrapper, which forwards JSON-RPC to the hosted endpoint (Node.js 22.18+ runs the TypeScript file directly; `bun` works too):
 
 ```bash
-npx -y bdmcp
+git clone https://github.com/nadimtuhin/shorkari-mcp.git
 ```
-
-Or configure in your local agent settings:
 
 ```json
 {
   "mcpServers": {
     "bdmcp": {
-      "command": "npx",
-      "args": ["-y", "bdmcp"]
+      "command": "node",
+      "args": ["/absolute/path/to/shorkari-mcp/bin/cli.ts"]
     }
   }
 }
 ```
+
+Optional environment variables: `BDMCP_URL` (endpoint, defaults to the hosted server) and `BDMCP_TIMEOUT_MS` (per-request timeout, default `30000`).
 
 ---
 
