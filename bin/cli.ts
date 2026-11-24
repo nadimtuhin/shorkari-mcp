@@ -6,6 +6,8 @@ try {
 import { createInterface } from 'node:readline';
 
 const ENDPOINT = process.env.BDMCP_URL || 'https://bdmcp.nadimtuhin.com/mcp';
+const parsedTimeout = Number(process.env.BDMCP_TIMEOUT_MS);
+const TIMEOUT_MS = Number.isFinite(parsedTimeout) && parsedTimeout > 0 ? parsedTimeout : 30000;
 
 const rl = createInterface({
   input: process.stdin,
@@ -31,7 +33,8 @@ rl.on('line', async (line) => {
         'Content-Type': 'application/json',
         'User-Agent': 'bdmcp-cli/0.1.0'
       },
-      body: JSON.stringify(parsed)
+      body: JSON.stringify(parsed),
+      signal: AbortSignal.timeout(TIMEOUT_MS)
     });
 
     if (!res.ok) {
@@ -50,6 +53,8 @@ rl.on('line', async (line) => {
       return;
     }
 
+    if (res.status === 202 || parsed.id === undefined) return;
+
     const data = await res.json();
     process.stdout.write(JSON.stringify(data) + '\n');
   } catch (err: any) {
@@ -60,7 +65,10 @@ rl.on('line', async (line) => {
           id: parsed.id,
           error: {
             code: -32603,
-            message: `Failed to connect to ${ENDPOINT}: ${err?.message || String(err)}`
+            message:
+              err?.name === 'TimeoutError'
+                ? `Request to ${ENDPOINT} timed out after ${TIMEOUT_MS}ms`
+                : `Failed to connect to ${ENDPOINT}: ${err?.message || String(err)}`
           }
         }) + '\n'
       );
